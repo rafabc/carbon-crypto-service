@@ -1,0 +1,93 @@
+eureka.client.healthcheck.enabled: true
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  task.execution.shutdown.await-termination: true
+  task.scheduling.shutdown.await-termination: true
+  lifecycle.timeout-per-shutdown-phase: 2m
+  kafka:
+      bootstrap-servers: ${BOOTSTRAPS_SERVERS:kafka.euw1.cache.amazonaws.com}
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+        properties:
+          #  sasl.jaas.config: ${SASL_JAAS_CONFIG}
+          sasl.mechanism: PLAIN
+          security.protocol: PLAINTEXT
+  data:
+    redis:
+      serializer: org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+      cluster:
+        nodes: ${REDIS_CLUSTER_NODES:redis-cache-0001-001.aws.com:6379}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:5000}
+      host: ${REDIS_HOST:clustercfg.redis-cache.euw1.cache.amazonaws.com}
+      password: ${REDIS_PASSWORD:ZASDF2VuCg==}
+      port: ${REDIS_PORT:6379}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:true}
+      lettuce:
+        cluster:
+          refresh-period: 15
+        pool:
+          enabled: true
+          max-active: 100
+          max-idle: 20
+          min-idle: 10
+  datasource:
+    url: ${AURORA_URL:jdbc:postgresql://posgres-writer-dev.aws.com/dbcustomer}
+    username: ${AURORA_USER:root}
+    password: ${AURORA_PASS:xdadsadf}
+  jpa:
+    show-sql: false
+    hibernate:
+      #ddl-auto: <create | create-drop | update | validate | none>
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
+scheduled:
+  bl:
+    fixed-rate-ms: ${SCHEDULED_BL_FIXED_RATE_MS:5000}
+  details:
+    fixed-rate-ms: ${SCHEDULED_DETAILS_FIXED_RATE_MS:5000}
+  info:
+    disabled: ${SCHEDULED_LOG_INFO_DISABLED:false}
+    fixed-rate-ms: ${SCHEDULED_LOG_INFO_FIXED_RATE_MS:30000}
+
+security:
+  enabled: ${SECURITY_ENABLED:false}
+  signing:
+    algorithm: ${JWT_SIGNING_ALGORITHM:HS512}
+    secret: ${JWT_SIGNING_SECRET:Y2hhdEdQVDQgaXNuJ3QgcmVhbGx5IHJhbmRvbSwgYnV0IGl0J3MgYSBkZW1vIGZvciBlbmNyeXB0aW9uIQ==}
+
+mock-controllers:
+  enable: ${MOCK_CONTROLLERS:false}
+  parameters:
+    string-min-length: ${MOCK_STRING_MIN_SIZE:1}
+    string-max-length: ${MOCK_STRING_MAX_SIZE:32}
+    max-amount: ${MOCK_AMOUNT_MAX_SIZE:10000000}
+    max-orders: ${MOCK_ORDERS_MAX_SIZE:1000}
+    sse-interval: ${MOCK_SSE_INTERVAL:5}
+    message-size: ${MOCK_MESSAGE_SIZE:10}
+    static-response: ${MOCK_RESPONSE_STATIC:true}
+
+
+management:
+  endpoinst:
+    web:
+      exposure:
+        include: "*"
+  health:
+    ldap:
+      enabled: false
+  endpoint:
+    shutdown:
+      enabled: true
+      sensitive: false
+    health:
+      enabled: true
+      show-details: always
